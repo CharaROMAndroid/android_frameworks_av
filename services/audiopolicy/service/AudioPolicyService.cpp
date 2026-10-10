@@ -258,6 +258,13 @@ AudioPolicyService::AudioPolicyService()
 void AudioPolicyService::loadAudioPolicyManager()
 {
     mLibraryHandle = dlopen(kAudioPolicyManagerCustomPath, RTLD_NOW);
+    if (mLibraryHandle == nullptr) {
+        const char *lastError = dlerror();
+        ALOGW("%s custom manager '%s' unavailable; using built-in factory: %s",
+                __func__, kAudioPolicyManagerCustomPath,
+                lastError != nullptr ? lastError : "no error");
+        return;
+    }
     if (mLibraryHandle != nullptr) {
         ALOGI("%s loading %s", __func__, kAudioPolicyManagerCustomPath);
         mCreateAudioPolicyManager = reinterpret_cast<CreateAudioPolicyManagerInstance>
